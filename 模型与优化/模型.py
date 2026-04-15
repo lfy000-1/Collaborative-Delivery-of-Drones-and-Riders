@@ -146,6 +146,8 @@ class UAVPathCostCalculator:
         c_hr: float = 20.0,
         c_theta: float = 20.0 / pi,
         k_nearest: int = 4,
+        ignore_first_collision: bool = True,
+        ignore_last_collision: bool = True,
     ):
         """初始化路径代价计算器。
 
@@ -157,6 +159,8 @@ class UAVPathCostCalculator:
             c_hr: 飞行高度奖励系数（高于建筑顶部时给负代价奖励）
             c_theta: 转角约束惩罚系数
             k_nearest: 每个路径点仅评估最近的 k 个障碍物，用于提速
+            ignore_first_collision: 是否忽略全路径的第一次碰撞惩罚
+            ignore_last_collision: 是否忽略全路径的最后一次碰撞惩罚
         """
 
         self.terrain = terrain
@@ -166,6 +170,8 @@ class UAVPathCostCalculator:
         self.c_hr = c_hr
         self.c_theta = c_theta
         self.k_nearest = max(1, int(k_nearest))
+        self.ignore_first_collision = bool(ignore_first_collision)
+        self.ignore_last_collision = bool(ignore_last_collision)
 
         if obstacles:
             self._obs_x = np.array([obs.x for obs in obstacles], dtype=float)
@@ -289,10 +295,13 @@ class UAVPathCostCalculator:
             - 对每个航段，仅检查最近 k 个障碍物。
             - 若航段与障碍物相交，则叠加碰撞惩罚 c_B。
             - 若当前点高度高于建筑顶部，可获得 -c_hr 奖励。
+            - 若 ignore_first_collision=True，则全路径第一次碰撞惩罚会被忽略。
+            - 若 ignore_last_collision=True，则全路径最后一次碰撞惩罚会被忽略。
         """
 
-        total_B = 0.0
         full_path = [start] + path + [end]
+        collision_flags: List[bool] = []
+        height_rewards: List[float] = []
 
         for i in range(1, len(full_path)):
             p_prev = full_path[i - 1]
@@ -310,13 +319,26 @@ class UAVPathCostCalculator:
                 if self._segment_intersect_cylinder(p_prev, p_curr, obs.x, obs.y, obs.r):
                     collide = True
 
-                B_j = self.c_B if collide else 0.0
-
                 H_i = p_curr[2]
                 building_top = float(self._obs_top[int(obs_idx)])
                 hr = -self.c_hr if H_i >= building_top else 0.0
 
-                total_B += B_j + hr
+                collision_flags.append(collide)
+                height_rewards.append(hr)
+
+        collision_indices = [idx for idx, is_collision in enumerate(collision_flags) if is_collision]
+        ignored_collision_indices = set()
+
+        if self.ignore_first_collision and collision_indices:
+            ignored_collision_indices.add(collision_indices[0])
+        if self.ignore_last_collision and collision_indices:
+            ignored_collision_indices.add(collision_indices[-1])
+
+        total_B = 0.0
+        for idx, collide in enumerate(collision_flags):
+            if collide and idx not in ignored_collision_indices:
+                total_B += self.c_B
+            total_B += height_rewards[idx]
 
         return float(total_B)
 
