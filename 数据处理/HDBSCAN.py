@@ -7,7 +7,7 @@ from sklearn.preprocessing import StandardScaler
 from scipy.spatial.distance import pdist, squareform
 
 # ================== 配置参数 ==================
-DATA_PATH = "D:\文档\大学文件\竞赛\统计建模\真正的统模\数据\重庆POI数据_带人口密度.csv"
+DATA_PATH = "D:\文档\大学文件\竞赛\统计建模\真正的统模\代码和数据\数据\重庆POI数据_带人口密度.csv"
 MIN_CLUSTER_SIZE = 10               # 最小簇大小
 MIN_SAMPLES = 3                     # 密度估计参数
 USE_POP_DENSITY = True              # 是否将人口密度作为聚类特征
@@ -22,7 +22,7 @@ df = pd.read_csv(DATA_PATH)
 print(f"原始数据行数: {len(df)}")
 print(f"列名: {df.columns.tolist()}")
 
-required_cols = ["投影X", "投影Y", "人口密度"]
+required_cols = ["Center_X", "Center_Y", "人口密度"]
 if not all(col in df.columns for col in required_cols):
     raise ValueError(f"数据中缺少必要的列，请确保包含: {required_cols}")
 
@@ -30,7 +30,7 @@ df = df.dropna(subset=required_cols).reset_index(drop=True)
 print(f"剔除缺失值后行数: {len(df)}")
 
 # ================== 特征提取（添加权重） ==================
-X_coord = df[["投影X", "投影Y"]].values
+X_coord = df[["Center_X", "Center_Y"]].values
 
 if USE_POP_DENSITY:
     # 人口密度乘以权重后再参与聚类
@@ -69,7 +69,7 @@ for label in set(labels):
     if label == -1:
         continue
     cluster_data = df[df['cluster_label'] == label]
-    coords = cluster_data[['投影X', '投影Y']].values
+    coords = cluster_data[['Center_X', 'Center_Y']].values
     pop_density = cluster_data['人口密度'].values
     
     n_points = len(coords)
@@ -97,8 +97,8 @@ for label in set(labels):
     candidate = cluster_data.loc[best_idx]
     candidate_points.append({
         'cluster_id': label,
-        'X': candidate['投影X'],
-        'Y': candidate['投影Y'],
+        'X': candidate['Center_X'],
+        'Y': candidate['Center_Y'],
         '人口密度': candidate['人口密度'],
         '点数量': len(cluster_data),
         '平均人口密度': cluster_data['人口密度'].mean(),
@@ -140,7 +140,7 @@ for label in unique_labels:
         alpha = 0.7
 
     mask = df['cluster_label'] == label
-    plt.scatter(df.loc[mask, '投影X'], df.loc[mask, '投影Y'],
+    plt.scatter(df.loc[mask, 'Center_X'], df.loc[mask, 'Center_Y'],
                 c=color, label=label_name, alpha=alpha,
                 s=sizes[mask], edgecolors='none')
 

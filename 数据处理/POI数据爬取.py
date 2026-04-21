@@ -14,7 +14,7 @@ POI_TYPES = [
     ("090000", "医院"),
     ("141201", "高等院校")
 ]
-OUTPUT_FILE = "重庆POI数据.csv"
+OUTPUT_FILE = "D:\文档\大学文件\竞赛\统计建模\真正的统模\代码和数据\数据\重庆POI数据.csv"
 
 # ================== 坐标转换函数 ==================
 def gcj02_to_wgs84(lng, lat):
@@ -63,6 +63,9 @@ utm_modified_proj = (
     "+lon_0=107.14001820 "
     "+k=0.9996 "
     "+x_0=500000 "
+    # "+lon_0=106.3740291753 "
+    # "+k=0.9996340917 "
+    # "+x_0=425779.1001 "
     "+y_0=0 "
     "+ellps=WGS84 "
     "+towgs84=0,0,0,0,0,0,0 "
@@ -118,11 +121,12 @@ def process_poi_data(pois):
         if location and ',' in location:
             try:
                 gcj_lng, gcj_lat = map(float, location.split(","))
-                # 1. GCJ-02 -> WGS-84
-                wgs_lng, wgs_lat = gcj02_to_wgs84(gcj_lng, gcj_lat)
-                # 2. WGS-84 -> 自定义投影
-                if wgs_lng is not None and wgs_lat is not None:
-                    proj_x, proj_y = transformer.transform(wgs_lng, wgs_lat)
+                # # 1. GCJ-02 -> WGS-84
+                # wgs_lng, wgs_lat = gcj02_to_wgs84(gcj_lng, gcj_lat)
+                # # 2. WGS-84 -> 自定义投影
+                # if wgs_lng is not None and wgs_lat is not None:
+                #     proj_x, proj_y = transformer.transform(wgs_lng, wgs_lat)
+                proj_x, proj_y = transformer.transform(gcj_lng, gcj_lat)
             except Exception as e:
                 print(f"坐标转换出错: {e}, location={location}")
 

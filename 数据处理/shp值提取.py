@@ -87,8 +87,8 @@ def shp2csv(input_shp, output_csv, encoding='auto'):
 
 if __name__ == "__main__":
     # 配置参数
-    input_shp = "D:\文档\大学文件\竞赛\统计建模\真正的统模\数据\裁剪后的建筑物数据.shp"  # 输入文件路径
-    output_csv = "D:\文档\大学文件\竞赛\统计建模\真正的统模\数据\裁剪后的建筑物数据.csv"  # 输出文件路径
+    input_shp = "D:\文档\大学文件\竞赛\统计建模\真正的统模\代码和数据\数据\数据\裁剪后的建筑物数据.shp"  # 输入文件路径
+    output_csv = "D:\文档\大学文件\竞赛\统计建模\真正的统模\代码和数据\代码和数据\裁剪后的建筑物数据.csv"  # 输出文件路径
 
     # 执行转换（遇到编码错误可尝试设置encoding='gbk'）
     shp2csv(input_shp, output_csv, encoding='auto')

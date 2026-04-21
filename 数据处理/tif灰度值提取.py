@@ -62,8 +62,8 @@ def extract_single_band_values(tif_path, output_csv):
 
 # 提取巴南区片区地形数据的灰度值
 if __name__ == "__main__":
-    input_file = "D:\文档\大学文件\竞赛\统计建模\真正的统模\数据\初始数据\投影加剪裁后的地形数据.tif"
-    output_file = "D:\文档\大学文件\竞赛\统计建模\真正的统模\数据\初始数据\投影加剪裁后的地形高度数据.csv"
+    input_file = "D:\文档\大学文件\竞赛\统计建模\真正的统模\代码和数据\数据\初始数据\投影加剪裁后的地形数据.tif"
+    output_file = "D:\文档\大学文件\竞赛\统计建模\真正的统模\代码和数据\数据\初始数据\投影加剪裁后的地形高度数据.csv"
     extract_single_band_values(input_file, output_file)
 
 
